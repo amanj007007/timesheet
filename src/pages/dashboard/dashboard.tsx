@@ -1,4 +1,3 @@
-// import type { CurrentUser } from "../../component/type/currentuser";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useauth";
 import {
@@ -10,10 +9,15 @@ import {
 export default function Dashboard() {
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
+
     const handleLogout = () => {
         logout();
-
         navigate("/login");
+    };
+
+    const handleTimesheet = () => {
+         console.log("Timesheet button clicked");
+        navigate("/timesheet");
     };
     return (
         <Box
@@ -36,15 +40,32 @@ export default function Dashboard() {
                     mb: 3,
                 }}
             >
-                Welcome  {currentUser?.name} to Timesheet Management System
+                Welcome {currentUser?.name} to Timesheet Management System
             </Typography>
 
-            <Button
-                variant="contained"
-                onClick={handleLogout}
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 2,
+                    mt: 3,
+                }}
             >
-                Logout
-            </Button>
+                <Button
+                    variant="contained"
+                    onClick={handleTimesheet}
+                >
+                    Timesheet
+                </Button>
+
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={handleLogout}
+                >
+                    Logout
+                </Button>
+            </Box>
         </Box>
     );
 }
