@@ -3,12 +3,12 @@ import { useState } from "react";
 import { Box, Typography, TextField, Button } from "@mui/material";
 
 import { Link, useNavigate } from "react-router-dom";
-
+import { useAuth } from "../../hooks/useauth";
 import type { User } from "../../component/type/user";
 
 export default function Login() {
   const navigate = useNavigate();
-
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -86,17 +86,17 @@ export default function Login() {
     const user = findUser();
 
     if (!user) {
-      setError("User does not exist.");
+      setError("Invalid Credentials");
 
       return;
     }
 
     if (user.password !== formData.password) {
-      setError("Incorrect Password.");
+      setError("Invalid Credentials");
 
       return;
     }
-
+    login(user);
     saveCurrentUser(user);
 
     navigate("/dashboard");
@@ -112,7 +112,7 @@ export default function Login() {
       }}
     >
       <Typography variant="h4"
-      sx= {{textAlign:"center" ,mb:3}}>
+        sx={{ textAlign: "center", mb: 3 }}>
         Login
       </Typography>
 
@@ -136,7 +136,7 @@ export default function Login() {
       />
 
       {error && (
-        <Typography sx={{color:"error" ,mt:1}}>
+        <Typography sx={{ color: "error", mt: 1 }}>
           {error}
         </Typography>
       )}
@@ -150,8 +150,8 @@ export default function Login() {
         Login
       </Button>
 
-      <Typography 
-      sx={{textAlign:"center", mt:2}}>
+      <Typography
+        sx={{ textAlign: "center", mt: 2 }}>
         Don't have an account?
         <Button component={Link} to="/signup">
           Signup
