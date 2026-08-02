@@ -9,14 +9,26 @@ import {
   TableCell,
   TableBody,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import AddTaskDialog from "./addtaskdialog";
+import type { Task } from "../../component/type/task";
 
 export default function Timesheet() {
   const [open, setOpen] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  useEffect(() => {
+
+    const savedTasks = JSON.parse(
+      localStorage.getItem("tasks") || "[]"
+    );
+
+    setTasks(savedTasks);
+
+  }, []);
+
   const handleOpen = () => {
-      // console.log("Open button clicked");
+    // console.log("Open button clicked");
 
     setOpen(true);
   };
@@ -24,6 +36,54 @@ export default function Timesheet() {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleSaveTask = (task: Task) => {
+
+    const updatedTasks = [...tasks, task];
+
+    setTasks(updatedTasks);
+
+    localStorage.setItem(
+      "tasks",
+      JSON.stringify(updatedTasks)
+    );
+    handleClose();
+  };
+  const groupedTasks = tasks.reduce((groups, task) => {
+
+    const existingGroup = groups.find(
+      (group) => group.date === task.date
+    );
+
+    if (existingGroup) {
+
+      existingGroup.tasks.push(task);
+
+      existingGroup.totalHours += task.hours;
+
+    } else {
+
+      groups.push({
+
+        date: task.date,
+
+        tasks: [task],
+
+        totalHours: task.hours,
+
+      });
+
+    }
+
+    return groups;
+
+  }, [] as {
+    date: string;
+    tasks: Task[];
+    totalHours: number;
+  }[]);
+
+
   return (
     <Box
       sx={{
@@ -50,7 +110,7 @@ export default function Timesheet() {
         >
           Add Task
         </Button>
-        
+
       </Box>
 
       {/* Table */}
@@ -77,16 +137,48 @@ export default function Timesheet() {
 
           <TableBody>
 
-            <TableRow>
+            {tasks.length === 0 ? (
 
-              <TableCell
-                colSpan={4}
-                align="center"
-              >
-                No tasks found
-              </TableCell>
+              <TableRow>
 
-            </TableRow>
+                <TableCell
+                  colSpan={4}
+                  align="center"
+                >
+                  No tasks found
+                </TableCell>
+
+              </TableRow>
+
+            ) : (
+
+              groupedTasks.map((group) => (
+
+                <TableRow key={group.date}>
+
+                  <TableCell>
+                    {group.date}
+                  </TableCell>
+
+                  <TableCell>
+                    {group.tasks[0].task}
+                  </TableCell>
+
+                  <TableCell>
+                    {group.totalHours}
+                  </TableCell>
+
+                  <TableCell>
+
+                    👁
+
+                  </TableCell>
+
+                </TableRow>
+
+              ))
+
+            )}
 
           </TableBody>
 
@@ -94,6 +186,7 @@ export default function Timesheet() {
         <AddTaskDialog
           open={open}
           handleClose={handleClose}
+          onSave={handleSaveTask}
         />
 
       </Paper>

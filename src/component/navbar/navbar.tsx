@@ -32,21 +32,6 @@ Timesheet Management System
 </Typography>
 
 
-<Box>
-
-<Button
-color="inherit"
-component={Link}
-to="/"
-
->
-
-Home
-
-</Button>
-
-</Box>
-
 </Toolbar>
 
 </AppBar>
