@@ -8,7 +8,8 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    TextField
+    TextField,
+    Typography,
 }
     from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material";
@@ -42,6 +43,17 @@ export default function AddTaskDialog({
     const [startTime, setStartTime] = useState<Dayjs | null>(null);
     const { currentUser } = useAuth();
     const [endTime, setEndTime] = useState<Dayjs | null>(null);
+    const [errors, setErrors] = useState({
+        date: "",
+        category: "",
+        topic: "",
+        projectName: "",
+        task: "",
+        description: "",
+        startTime: "",
+        endTime: "",
+        hours: "",
+    });
     const resetForm = () => {
         setDate(dayjs());
         setCategory("");
@@ -53,6 +65,17 @@ export default function AddTaskDialog({
         setEndTime(null);
         setHours("");
         setDisplayHours("");
+        setErrors({
+            date: "",
+            category: "",
+            topic: "",
+            projectName: "",
+            task: "",
+            description: "",
+            startTime: "",
+            endTime: "",
+            hours: "",
+        });
     };
 
     useEffect(() => {
@@ -116,32 +139,105 @@ export default function AddTaskDialog({
             setTopic("");
         }
     };
+
     const handleSave = () => {
+        const newErrors = {
+            date: "",
+            category: "",
+            topic: "",
+            projectName: "",
+            task: "",
+            description: "",
+            startTime: "",
+            endTime: "",
+            hours: "",
+        };
+        if (!date) {
+
+            newErrors.date = "Date is required";
+
+        }
+        if (!startTime) {
+
+            newErrors.startTime = "Start Time is required";
+
+        }
+        if (!endTime) {
+
+            newErrors.endTime = "End Time is required";
+
+        }
+        if (
+            startTime &&
+            endTime &&
+            endTime.isBefore(startTime)
+        ) {
+
+            newErrors.endTime =
+                "End Time cannot be earlier than Start Time";
+
+        }
+        if (Number(hours) <= 0) {
+
+            newErrors.hours =
+                "Hours cannot be zero";
+
+        }
         if (!category) {
-            alert("Please select category");
-            return;
-        }
 
+            newErrors.category = "Category is required";
+
+        }
         if (!task.trim()) {
-            alert("Please enter task");
-            return;
-        }
 
+            newErrors.task = "Task is required";
+
+        } else if (task.trim().length < 5) {
+
+            newErrors.task =
+                "Task must contain at least 5 characters";
+
+        }
         if (!description.trim()) {
-            alert("Please enter description");
-            return;
-        }
 
-        if (category === "Learning" && !topic.trim()) {
-            alert("Please enter topic");
-            return;
-        }
+            newErrors.description =
+                "Description is required";
 
-        if (category === "Assignment" && !projectName.trim()) {
-            alert("Please enter project name");
-            return;
-        }
+        } else if (description.trim().length < 20) {
 
+            newErrors.description =
+                "Description must contain at least 20 characters";
+
+        }
+        if (
+            category === "Learning" &&
+            !topic.trim()
+        ) {
+
+            newErrors.topic =
+                "Topic is required";
+
+        }
+        if (
+            category === "Assignment" &&
+            !projectName.trim()
+        ) {
+
+            newErrors.projectName =
+                "Project Name is required";
+
+        }
+        if (
+            Object.values(newErrors).some(
+                (error) => error !== ""
+            )
+        ) {
+
+            setErrors(newErrors);
+
+            return;
+
+        }
         const newTask: Task = {
             id: Date.now(),
             userId: currentUser!.id,
@@ -184,10 +280,17 @@ export default function AddTaskDialog({
                             width: "100%",
                             mt: 2,
                         }}
+                        slotProps={{
+                            textField: {
+                                error: !!errors.date,
+                                helperText: errors.date,
+                            },
+                        }}
                     />
                     <FormControl
                         fullWidth
                         sx={{ mt: 3 }}
+                        error={!!errors.category}
                     >
 
                         <InputLabel>
@@ -209,26 +312,33 @@ export default function AddTaskDialog({
                             </MenuItem>
 
                         </Select>
+                        <Typography
+                            color="error"
+                            variant="caption"
+                        >
+                            {errors.category}
+                        </Typography>
                         {category === "Learning" && (
 
                             <TextField
                                 fullWidth
                                 label="Topic"
-                                required
                                 value={topic}
                                 onChange={(e) => setTopic(e.target.value)}
+                                error={!!errors.topic}
+                                helperText={errors.topic}
                                 sx={{ mt: 3 }}
                             />
-
                         )}
                         {category === "Assignment" && (
 
                             <TextField
                                 fullWidth
-                                required
                                 label="Project Name"
                                 value={projectName}
                                 onChange={(e) => setProjectName(e.target.value)}
+                                error={!!errors.projectName}
+                                helperText={errors.projectName}
                                 sx={{ mt: 3 }}
                             />
 
@@ -236,19 +346,21 @@ export default function AddTaskDialog({
                         <TextField
                             fullWidth
                             label="Task"
-                            required
                             value={task}
                             onChange={(e) => setTask(e.target.value)}
+                            error={!!errors.task}
+                            helperText={errors.task}
                             sx={{ mt: 3 }}
                         />
                         <TextField
                             fullWidth
                             multiline
-                            required
                             rows={4}
                             label="Description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
+                            error={!!errors.description}
+                            helperText={errors.description}
                             sx={{ mt: 3 }}
                         />
                         <TimePicker
@@ -259,6 +371,12 @@ export default function AddTaskDialog({
                                 width: "100%",
                                 mt: 3,
                             }}
+                            slotProps={{
+                                textField: {
+                                    error: !!errors.startTime,
+                                    helperText: errors.startTime,
+                                },
+                            }}
                         />
                         <TimePicker
                             label="End Time"
@@ -268,11 +386,19 @@ export default function AddTaskDialog({
                                 width: "100%",
                                 mt: 3,
                             }}
+                            slotProps={{
+                                textField: {
+                                    error: !!errors.endTime,
+                                    helperText: errors.endTime,
+                                },
+                            }}
                         />
                         <TextField
                             fullWidth
                             label="Hours"
                             value={displayHours}
+                            error={!!errors.hours}
+                            helperText={errors.hours}
                             slotProps={{
                                 input: {
                                     readOnly: true,

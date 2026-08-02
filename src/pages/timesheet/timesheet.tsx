@@ -10,13 +10,19 @@ import {
   TableBody,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-
+import ViewTaskDialog from "./viewtaskdialog";
 import AddTaskDialog from "./addtaskdialog";
 import type { Task } from "../../component/type/task";
 
 export default function Timesheet() {
   const [open, setOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<{
+    date: string;
+    tasks: Task[];
+  } | null>(null);
+
   useEffect(() => {
 
     const savedTasks = JSON.parse(
@@ -36,6 +42,18 @@ export default function Timesheet() {
   const handleClose = () => {
     setOpen(false);
   };
+  const handleView = (group: {
+    date: string;
+    tasks: Task[];
+  }) => {
+
+    console.log("Eye clicked", group);
+
+    setSelectedGroup(group);
+
+    setViewOpen(true);
+
+  };
 
   const handleSaveTask = (task: Task) => {
 
@@ -49,7 +67,20 @@ export default function Timesheet() {
     );
     handleClose();
   };
-  const groupedTasks = tasks.reduce((groups, task) => {
+  const sortedTasks = [...tasks].sort((a, b) => {
+
+  const dateA = new Date(
+    a.date.split("/").reverse().join("-")
+  );
+
+  const dateB = new Date(
+    b.date.split("/").reverse().join("-")
+  );
+
+  return dateA.getTime() - dateB.getTime();
+
+});
+  const groupedTasks = sortedTasks.reduce((groups, task) => {
 
     const existingGroup = groups.find(
       (group) => group.date === task.date
@@ -169,8 +200,11 @@ export default function Timesheet() {
                   </TableCell>
 
                   <TableCell>
-
-                    👁
+                    <Button
+                      onClick={() => handleView(group)}
+                    >
+                      👁
+                    </Button>
 
                   </TableCell>
 
@@ -188,7 +222,12 @@ export default function Timesheet() {
           handleClose={handleClose}
           onSave={handleSaveTask}
         />
-
+        <ViewTaskDialog
+          open={viewOpen}
+          handleClose={() => setViewOpen(false)}
+          tasks={selectedGroup?.tasks || []}
+          date={selectedGroup?.date || ""}
+        />
       </Paper>
 
     </Box>
