@@ -6,7 +6,6 @@ import Dashboard from "../pages/dashboard/dashboard";
 import Timesheet from "../pages/timesheet/timesheet";
 import ProtectedRoute from "../utils/protectedroute";
 
-
 export default function AppRoutes() {
     return (
         <Routes>

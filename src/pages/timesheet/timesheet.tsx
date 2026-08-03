@@ -8,6 +8,10 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import ViewTaskDialog from "./viewtaskdialog";
@@ -23,6 +27,8 @@ export default function Timesheet() {
     date: string;
     tasks: Task[];
   } | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   useEffect(() => {
 
@@ -42,7 +48,7 @@ export default function Timesheet() {
 
   const handleClose = () => {
     setOpen(false);
-    
+
   };
   const handleView = (group: {
     date: string;
@@ -65,6 +71,46 @@ export default function Timesheet() {
     setOpen(true);
 
   };
+  const handleDelete = (task: Task) => {
+
+    setTaskToDelete(task);
+
+    setDeleteOpen(true);
+
+  };
+  const confirmDelete = () => {
+    if (!taskToDelete) return;
+
+    const updatedTasks = tasks.filter(
+      (task) => task.id !== taskToDelete.id
+    );
+
+    setTasks(updatedTasks);
+
+    localStorage.setItem(
+      "tasks",
+      JSON.stringify(updatedTasks)
+    );
+
+    // Close dialogs
+    setDeleteOpen(false);
+    setViewOpen(false);
+
+    // Clear selections
+    setTaskToDelete(null);
+    setSelectedGroup(null);
+
+
+  };
+
+
+  const cancelDelete = () => {
+
+    setDeleteOpen(false);
+
+    setTaskToDelete(null);
+
+  }
   const handleSaveTask = (task: Task) => {
 
     let updatedTasks: Task[];
@@ -282,7 +328,38 @@ export default function Timesheet() {
           tasks={selectedGroup?.tasks || []}
           date={selectedGroup?.date || ""}
           onEdit={handleEdit}
+          onDelete={handleDelete}
         />
+        <Dialog
+          open={deleteOpen}
+          onClose={cancelDelete}
+        >
+          <DialogTitle>
+            Delete Task
+          </DialogTitle>
+
+          <DialogContent>
+            <Typography>
+              Are you sure you want to delete this task?
+            </Typography>
+          </DialogContent>
+
+          <DialogActions>
+            <Button
+              onClick={cancelDelete}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              color="error"
+              variant="contained"
+              onClick={confirmDelete}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
 
     </Box>

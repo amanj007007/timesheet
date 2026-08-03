@@ -1,165 +1,168 @@
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Typography,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    Box,
+    import {
+        Dialog,
+        DialogTitle,
+        DialogContent,
+        DialogActions,
+        Button,
+        Typography,
+        Accordion,
+        AccordionSummary,
+        AccordionDetails,
+        Box,
 
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import type { Task } from "../../component/type/task";
+    } from "@mui/material";
+    import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+    import EditIcon from "@mui/icons-material/Edit";
+    import DeleteIcon from "@mui/icons-material/Delete";
+    import type { Task } from "../../component/type/task";
 
-interface Props {
-    open: boolean;
-    handleClose: () => void;
-    tasks: Task[];
-    date: string;
-    onEdit: (task: Task) => void;
-}
+    interface Props {
+        open: boolean;
+        handleClose: () => void;
+        tasks: Task[];
+        date: string;
+        onEdit: (task: Task) => void;
+        onDelete: (task: Task) => void;
+    }
 
-export default function ViewTaskDialog({
-    open,
-    handleClose,
-    tasks,
-    date,
-    onEdit,
-}: Props) {
+    export default function ViewTaskDialog({
+        open,
+        handleClose,
+        tasks,
+        date,
+        onEdit,
+        onDelete
+    }: Props) {
 
-    const sortedTasks = [...tasks].sort((a, b) => {
+        const sortedTasks = [...tasks].sort((a, b) => {
 
-        return a.startTime.localeCompare(b.startTime);
+            return a.startTime.localeCompare(b.startTime);
 
-    });
+        });
 
-    return (
+        return (
 
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            fullWidth
-            maxWidth="md"
-        >
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                fullWidth
+                maxWidth="md"
+            >
 
-            <DialogTitle>
+                <DialogTitle>
 
-                Tasks - {date}
+                    Tasks - {date}
 
-            </DialogTitle>
+                </DialogTitle>
 
-            <DialogContent>
+                <DialogContent>
 
-                {sortedTasks.length === 0 ? (
+                    {sortedTasks.length === 0 ? (
 
-                    <Typography>
-                        No Tasks Found
-                    </Typography>
+                        <Typography>
+                            No Tasks Found
+                        </Typography>
 
-                ) : (
+                    ) : (
 
-                    sortedTasks.map((task) => (
+                        sortedTasks.map((task) => (
 
-                        <Accordion key={task.id} sx={{ mt: 2 }}>
+                            <Accordion key={task.id} sx={{ mt: 2 }}>
 
-                            <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
-                            >
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                >
 
-                                <Typography sx={{ fontWeight: "bold" }}>
-                                    {task.task}
-                                </Typography>
-
-                            </AccordionSummary>
-
-                            <AccordionDetails>
-
-                                <Box>
-
-                                    <Typography>
-                                        <strong>Category:</strong> {task.category}
+                                    <Typography sx={{ fontWeight: "bold" }}>
+                                        {task.task}
                                     </Typography>
 
-                                    <Typography sx={{ mt: 1 }}>
-                                        <strong>
+                                </AccordionSummary>
+
+                                <AccordionDetails>
+
+                                    <Box>
+
+                                        <Typography>
+                                            <strong>Category:</strong> {task.category}
+                                        </Typography>
+
+                                        <Typography sx={{ mt: 1 }}>
+                                            <strong>
+                                                {task.category === "Learning"
+                                                    ? "Topic"
+                                                    : "Project"}
+                                                :
+                                            </strong>{" "}
                                             {task.category === "Learning"
-                                                ? "Topic"
-                                                : "Project"}
-                                            :
-                                        </strong>{" "}
-                                        {task.category === "Learning"
-                                            ? task.topic
-                                            : task.projectName}
-                                    </Typography>
+                                                ? task.topic
+                                                : task.projectName}
+                                        </Typography>
 
-                                    <Typography sx={{ mt: 1 }}>
-                                        <strong>Description:</strong> {task.description}
-                                    </Typography>
+                                        <Typography sx={{ mt: 1 }}>
+                                            <strong>Description:</strong> {task.description}
+                                        </Typography>
 
-                                    <Typography sx={{ mt: 1 }}>
-                                        <strong>Start Time:</strong> {task.startTime}
-                                    </Typography>
+                                        <Typography sx={{ mt: 1 }}>
+                                            <strong>Start Time:</strong> {task.startTime}
+                                        </Typography>
 
-                                    <Typography sx={{ mt: 1 }}>
-                                        <strong>End Time:</strong> {task.endTime}
-                                    </Typography>
+                                        <Typography sx={{ mt: 1 }}>
+                                            <strong>End Time:</strong> {task.endTime}
+                                        </Typography>
 
-                                    <Typography sx={{ mt: 1 }}>
-                                        <strong>Duration:</strong> {task.displayHours}
-                                    </Typography>
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            justifyContent: "flex-end",
-                                            gap: 2,
-                                            mt: 3,
-                                        }}
-                                    >
-                                        <Button
-                                            variant="outlined"
-                                            startIcon={<EditIcon />}
-                                            onClick={() => onEdit(task)}
+                                        <Typography sx={{ mt: 1 }}>
+                                            <strong>Duration:</strong> {task.displayHours}
+                                        </Typography>
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "flex-end",
+                                                gap: 2,
+                                                mt: 3,
+                                            }}
                                         >
-                                            Edit
-                                        </Button>
+                                            <Button
+                                                variant="outlined"
+                                                startIcon={<EditIcon />}
+                                                onClick={() => onEdit(task)}
+                                            >
+                                                Edit
+                                            </Button>
 
-                                        <Button
-                                            variant="outlined"
-                                            color="error"
-                                            startIcon={<DeleteIcon />}
-                                        >
-                                            Delete
-                                        </Button>
+                                            <Button
+                                                variant="outlined"
+                                                color="error"
+                                                startIcon={<DeleteIcon />}
+                                                onClick={() => onDelete(task)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </Box>
                                     </Box>
-                                </Box>
 
-                            </AccordionDetails>
+                                </AccordionDetails>
 
-                        </Accordion>
+                            </Accordion>
 
-                    ))
+                        ))
 
-                )}
+                    )}
 
-            </DialogContent>
+                </DialogContent>
 
-            <DialogActions>
+                <DialogActions>
 
-                <Button
-                    onClick={handleClose}
-                >
-                    Close
-                </Button>
+                    <Button
+                        onClick={handleClose}
+                    >
+                        Close
+                    </Button>
 
-            </DialogActions>
+                </DialogActions>
 
-        </Dialog>
+            </Dialog>
 
-    );
+        );
 
-}
+    }
