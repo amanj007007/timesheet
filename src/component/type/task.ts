@@ -6,7 +6,7 @@ export interface Task {
     task: string;
     description: string;
     displayHours: string;
-    hours: string;
+    hours:number;
     startTime: string;
     endTime: string;
     topic?: string;

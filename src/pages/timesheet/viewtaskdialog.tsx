@@ -9,9 +9,11 @@ import {
     AccordionSummary,
     AccordionDetails,
     Box,
+
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import type { Task } from "../../component/type/task";
 
 interface Props {
@@ -19,6 +21,7 @@ interface Props {
     handleClose: () => void;
     tasks: Task[];
     date: string;
+    onEdit: (task: Task) => void;
 }
 
 export default function ViewTaskDialog({
@@ -26,6 +29,7 @@ export default function ViewTaskDialog({
     handleClose,
     tasks,
     date,
+    onEdit,
 }: Props) {
 
     const sortedTasks = [...tasks].sort((a, b) => {
@@ -51,7 +55,7 @@ export default function ViewTaskDialog({
 
             <DialogContent>
 
-                {tasks.length === 0 ? (
+                {sortedTasks.length === 0 ? (
 
                     <Typography>
                         No Tasks Found
@@ -108,7 +112,30 @@ export default function ViewTaskDialog({
                                     <Typography sx={{ mt: 1 }}>
                                         <strong>Duration:</strong> {task.displayHours}
                                     </Typography>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                            gap: 2,
+                                            mt: 3,
+                                        }}
+                                    >
+                                        <Button
+                                            variant="outlined"
+                                            startIcon={<EditIcon />}
+                                            onClick={() => onEdit(task)}
+                                        >
+                                            Edit
+                                        </Button>
 
+                                        <Button
+                                            variant="outlined"
+                                            color="error"
+                                            startIcon={<DeleteIcon />}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </Box>
                                 </Box>
 
                             </AccordionDetails>

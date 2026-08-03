@@ -9,7 +9,7 @@ import {
     Select,
     MenuItem,
     TextField,
-    Typography,
+    Typography
 }
     from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material";
@@ -25,12 +25,14 @@ interface Props {
     open: boolean;
     handleClose: () => void;
     onSave: (task: Task) => void;
+    editingTask: Task | null;
 }
 
 export default function AddTaskDialog({
     open,
     handleClose,
-    onSave
+    onSave,
+    editingTask,
 }: Props) {
     const [date, setDate] = useState<Dayjs | null>(dayjs());
     const [category, setCategory] = useState<"Learning" | "Assignment" | "">("");
@@ -121,6 +123,35 @@ export default function AddTaskDialog({
 
     }, [startTime, endTime]);
 
+    useEffect(() => {
+
+        if (!editingTask) return;
+
+        setDate(dayjs(editingTask.date, "DD/MM/YYYY"));
+
+        setCategory(editingTask.category);
+
+        setTopic(editingTask.topic || "");
+
+        setProjectName(editingTask.projectName || "");
+
+        setTask(editingTask.task);
+
+        setDescription(editingTask.description);
+
+        setHours(editingTask.hours.toString());
+
+        setDisplayHours(editingTask.displayHours);
+
+        setStartTime(
+            dayjs(editingTask.startTime, "HH:mm")
+        );
+
+        setEndTime(
+            dayjs(editingTask.endTime, "HH:mm")
+        );
+
+    }, [editingTask]);
 
     const handleCategoryChange = (
         event: SelectChangeEvent
@@ -139,7 +170,6 @@ export default function AddTaskDialog({
             setTopic("");
         }
     };
-
     const handleSave = () => {
         const newErrors = {
             date: "",
@@ -238,8 +268,11 @@ export default function AddTaskDialog({
             return;
 
         }
+
         const newTask: Task = {
-            id: Date.now(),
+            id: editingTask
+                ? editingTask.id
+                : Date.now(),
             userId: currentUser!.id,
             date: date ? date.format("DD/MM/YYYY") : "",
             category,
@@ -267,7 +300,11 @@ export default function AddTaskDialog({
             maxWidth="sm"
         >
             <DialogTitle>
-                Add Task
+
+                {editingTask
+                    ? "Edit Task"
+                    : "Add Task"}
+
             </DialogTitle>
 
             <DialogContent>
@@ -329,6 +366,7 @@ export default function AddTaskDialog({
                                 helperText={errors.topic}
                                 sx={{ mt: 3 }}
                             />
+
                         )}
                         {category === "Assignment" && (
 
@@ -378,6 +416,7 @@ export default function AddTaskDialog({
                                 },
                             }}
                         />
+
                         <TimePicker
                             label="End Time"
                             value={endTime}
@@ -406,6 +445,7 @@ export default function AddTaskDialog({
                             }}
                             sx={{ mt: 3 }}
                         />
+
                     </FormControl>
                 </LocalizationProvider>
 
@@ -429,7 +469,9 @@ export default function AddTaskDialog({
                     onClick={handleSave}
 
                 >
-                    Save
+                    {editingTask
+                        ? "Update"
+                        : "Save"}
                 </Button>
 
             </DialogActions>
@@ -439,4 +481,3 @@ export default function AddTaskDialog({
     );
 
 }
-

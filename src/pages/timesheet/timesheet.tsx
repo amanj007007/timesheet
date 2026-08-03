@@ -12,6 +12,7 @@ import {
 import { useState, useEffect } from "react";
 import ViewTaskDialog from "./viewtaskdialog";
 import AddTaskDialog from "./addtaskdialog";
+import EditIcon from "@mui/icons-material/Edit";
 import type { Task } from "../../component/type/task";
 
 export default function Timesheet() {
@@ -22,7 +23,7 @@ export default function Timesheet() {
     date: string;
     tasks: Task[];
   } | null>(null);
-
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   useEffect(() => {
 
     const savedTasks = JSON.parse(
@@ -41,6 +42,7 @@ export default function Timesheet() {
 
   const handleClose = () => {
     setOpen(false);
+    
   };
   const handleView = (group: {
     date: string;
@@ -54,10 +56,30 @@ export default function Timesheet() {
     setViewOpen(true);
 
   };
+  const handleEdit = (task: Task) => {
 
+    setEditingTask(task);
+
+    setViewOpen(false);
+
+    setOpen(true);
+
+  };
   const handleSaveTask = (task: Task) => {
 
-    const updatedTasks = [...tasks, task];
+    let updatedTasks: Task[];
+
+    if (editingTask) {
+
+      updatedTasks = tasks.map((t) =>
+        t.id === editingTask.id ? task : t
+      );
+
+    } else {
+
+      updatedTasks = [...tasks, task];
+
+    }
 
     setTasks(updatedTasks);
 
@@ -65,21 +87,25 @@ export default function Timesheet() {
       "tasks",
       JSON.stringify(updatedTasks)
     );
+
+    setEditingTask(null);
+
     handleClose();
+
   };
   const sortedTasks = [...tasks].sort((a, b) => {
 
-  const dateA = new Date(
-    a.date.split("/").reverse().join("-")
-  );
+    const dateA = new Date(
+      a.date.split("/").reverse().join("-")
+    );
 
-  const dateB = new Date(
-    b.date.split("/").reverse().join("-")
-  );
+    const dateB = new Date(
+      b.date.split("/").reverse().join("-")
+    );
 
-  return dateA.getTime() - dateB.getTime();
+    return dateA.getTime() - dateB.getTime();
 
-});
+  });
   const groupedTasks = sortedTasks.reduce((groups, task) => {
 
     const existingGroup = groups.find(
@@ -114,6 +140,33 @@ export default function Timesheet() {
     totalHours: number;
   }[]);
 
+  const formatHours = (hours: number) => {
+
+    const totalMinutes = Math.round(hours * 60);
+
+    const hrs = Math.floor(totalMinutes / 60);
+
+    const mins = totalMinutes % 60;
+
+    let result = "";
+
+    if (hrs > 0) {
+      result += `${hrs} ${hrs === 1 ? "Hour" : "Hours"}`;
+    }
+
+    if (mins > 0) {
+
+      if (result) {
+        result += " ";
+      }
+
+      result += `${mins} ${mins === 1 ? "Minute" : "Minutes"}`;
+
+    }
+
+    return result;
+
+  };
 
   return (
     <Box
@@ -196,7 +249,7 @@ export default function Timesheet() {
                   </TableCell>
 
                   <TableCell>
-                    {group.totalHours}
+                    {formatHours(group.totalHours)}
                   </TableCell>
 
                   <TableCell>
@@ -221,12 +274,14 @@ export default function Timesheet() {
           open={open}
           handleClose={handleClose}
           onSave={handleSaveTask}
+          editingTask={editingTask}
         />
         <ViewTaskDialog
           open={viewOpen}
           handleClose={() => setViewOpen(false)}
           tasks={selectedGroup?.tasks || []}
           date={selectedGroup?.date || ""}
+          onEdit={handleEdit}
         />
       </Paper>
 
